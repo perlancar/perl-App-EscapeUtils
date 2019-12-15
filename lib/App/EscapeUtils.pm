@@ -1,6 +1,8 @@
 package App::EscapeUtils;
 
+# AUTHORITY
 # DATE
+# DIST
 # VERSION
 
 use 5.010001;
@@ -287,6 +289,93 @@ sub shell_escape {
     return [200, "OK", $cb];
 }
 
+$SPEC{pod_escape} = {
+    v => 1.1,
+    summary => 'Quote POD special characters in input (in stdin or arguments)',
+    args => {
+        %arg_strings,
+    },
+    result => {
+        schema => 'str*',
+        stream => 1,
+    },
+};
+sub pod_escape {
+    require String::PodQuote;
+
+    my %args = @_;
+
+    my $strings = $args{strings};
+    my $cb = sub {
+        my $str = $strings->();
+        if (defined $str) {
+            return String::PodQuote::pod_quote($str);
+        } else {
+            return undef;
+        }
+    };
+
+    return [200, "OK", $cb];
+}
+
+$SPEC{perl_dquote_escape} = {
+    v => 1.1,
+    summary => 'Encode lines of input (in stdin or arguments) inside Perl double-quoted strings',
+    args => {
+        %arg_strings,
+    },
+    result => {
+        schema => 'str*',
+        stream => 1,
+    },
+};
+sub perl_dquote_escape {
+    require String::PerlQuote;
+
+    my %args = @_;
+
+    my $strings = $args{strings};
+    my $cb = sub {
+        my $str = $strings->();
+        if (defined $str) {
+            return String::PerlQuote::double_quote($str);
+        } else {
+            return undef;
+        }
+    };
+
+    return [200, "OK", $cb];
+}
+
+$SPEC{perl_squote_escape} = {
+    v => 1.1,
+    summary => 'Encode lines of input (in stdin or arguments) inside Perl single-quoted strings',
+    args => {
+        %arg_strings,
+    },
+    result => {
+        schema => 'str*',
+        stream => 1,
+    },
+};
+sub perl_squote_escape {
+    require String::PerlQuote;
+
+    my %args = @_;
+
+    my $strings = $args{strings};
+    my $cb = sub {
+        my $str = $strings->();
+        if (defined $str) {
+            return String::PerlQuote::single_quote($str);
+        } else {
+            return undef;
+        }
+    };
+
+    return [200, "OK", $cb];
+}
+
 1;
 #ABSTRACT: Various string escaping/unescaping utilities
 
@@ -304,5 +393,13 @@ L<URI::Escape>
 L<String::JS>
 
 L<String::Escape>
+
+L<HTML::Entities>
+
+L<String::ShellQuote> and L<ShellQuote::Any::Tiny>
+
+L<String::xcPodQuote>
+
+L<String::PerlQuote>
 
 =cut
